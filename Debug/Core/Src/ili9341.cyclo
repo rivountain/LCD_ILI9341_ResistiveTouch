@@ -1,0 +1,13 @@
+../Core/Src/ili9341.c:10:13:ILI9341_SPI_Tx	1
+../Core/Src/ili9341.c:18:13:ILI9341_SPI_Wait_DMA_Completed	2
+../Core/Src/ili9341.c:22:13:ILI9341_SPI_TxBuffer_DMA_Start	1
+../Core/Src/ili9341.c:34:13:ILI9341_WriteCommand	1
+../Core/Src/ili9341.c:43:13:ILI9341_WriteData	1
+../Core/Src/ili9341.c:52:13:ILI9341_Reset	1
+../Core/Src/ili9341.c:60:6:ILI9341_SetAddressWindow	1
+../Core/Src/ili9341.c:83:6:ILI9341_Init	1
+../Core/Src/ili9341.c:212:6:ILI9341_FillScreen	1
+../Core/Src/ili9341.c:216:6:ILI9341_DrawPixel	3
+../Core/Src/ili9341.c:251:6:ILI9341_FillRectangle	8
+../Core/Src/ili9341.c:286:6:HAL_SPI_TxCpltCallback	2
+../Core/Src/ili9341.c:295:6:HAL_SPI_ErrorCallback	1
