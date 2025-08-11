@@ -19,16 +19,16 @@ static void ILI9341_SPI_Wait_DMA_Completed(void) {
     while (!spi_dma_tx_completed);
 }
 
-static void ILI9341_SPI_TxBuffer_DMA_Start(uint8_t* buffer, uint16_t len) {
-	// 等待上一次DMA传输完成
-	ILI9341_SPI_Wait_DMA_Completed();
-
-	// 开始新的传输前，将标志位置为“未完成”
-	spi_dma_tx_completed = 0;
-
-	// 启动DMA传输
-    HAL_SPI_Transmit_DMA(ILI9341_SPI_HANDLE, buffer, len);
-}
+//static void ILI9341_SPI_TxBuffer_DMA_Start(uint8_t* buffer, uint16_t len) {
+//	// 等待上一次DMA传输完成
+//	ILI9341_SPI_Wait_DMA_Completed();
+//
+//	// 开始新的传输前，将标志位置为“未完成”
+//	spi_dma_tx_completed = 0;
+//
+//	// 启动DMA传输
+//    HAL_SPI_Transmit_DMA(ILI9341_SPI_HANDLE, buffer, len);
+//}
 
 // 发送命令
 static void ILI9341_WriteCommand(uint8_t cmd) {
@@ -188,29 +188,8 @@ void ILI9341_Init(void) {
 }
 
 
-//void ILI9341_FillScreen(uint16_t color) {
-//    ILI9341_SetAddressWindow(0, 0, ILI9341_WIDTH - 1, ILI9341_HEIGHT - 1);
-//
-//    HAL_GPIO_WritePin(ILI9341_DC_PORT, ILI9341_DC_PIN, GPIO_PIN_SET);
-//    HAL_GPIO_WritePin(ILI9341_CS_PORT, ILI9341_CS_PIN, GPIO_PIN_RESET);
-//
-//    // 拆分16位颜色数据为两个8位数据
-//    uint8_t color_high_byte = color >> 8;
-//    uint8_t color_low_byte = color & 0xFF;
-//
-//    // 创建一个包含两个字节颜色数据的小缓冲区
-//    uint8_t color_data[] = {color_high_byte, color_low_byte};
-//
-//    // 循环发送颜色数据
-//    for (uint32_t i = 0; i < (ILI9341_WIDTH * ILI9341_HEIGHT); i++) {
-//        HAL_SPI_Transmit(ILI9341_SPI_HANDLE, color_data, 2, HAL_MAX_DELAY);
-//    }
-//
-//    HAL_GPIO_WritePin(ILI9341_CS_PORT, ILI9341_CS_PIN, GPIO_PIN_SET);
-//}
-// ** 优化后的填充屏幕函数 **
 void ILI9341_FillScreen(uint16_t color) {
-	ILI9341_FillRectangle(0, 0, ILI9341_WIDTH, ILI9341_HEIGHT, color);
+	ILI9341_FillRectangle_DMA(0, 0, ILI9341_WIDTH, ILI9341_HEIGHT, color);
 }
 
 void ILI9341_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
@@ -248,7 +227,7 @@ void ILI9341_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
 //    HAL_GPIO_WritePin(ILI9341_CS_PORT, ILI9341_CS_PIN, GPIO_PIN_SET);
 //}
 // ** 优化后的填充矩形函数 **
-void ILI9341_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color) {
+void ILI9341_FillRectangle_DMA(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color) {
     if ((x >= ILI9341_WIDTH) || (y >= ILI9341_HEIGHT)) return;
     if ((x + w - 1) >= ILI9341_WIDTH) w = ILI9341_WIDTH - x;
     if ((y + h - 1) >= ILI9341_HEIGHT) h = ILI9341_HEIGHT - y;
@@ -279,6 +258,60 @@ void ILI9341_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint1
 	// 等待最后一次DMA传输完成
 	ILI9341_SPI_Wait_DMA_Completed();
     HAL_GPIO_WritePin(ILI9341_CS_PORT, ILI9341_CS_PIN, GPIO_PIN_SET);
+}
+
+// *** 新增：一个简单的、基于DrawPixel的矩形填充函数 ***
+// 这个函数专门给DrawChar用于字符放大，我们不把它在.h中声明，作为内部函数
+static void ILI9341_FillRectangle_Slow(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color) {
+    for (uint16_t j = 0; j < h; j++) {
+        for (uint16_t i = 0; i < w; i++) {
+            ILI9341_DrawPixel(x + i, y + j, color);
+        }
+    }
+}
+
+// *** 基于Adafruit GFX逻辑的字符绘制函数 ***
+// 这个函数现在会调用我们内部的慢速填充函数
+void ILI9341_DrawChar(uint16_t x, uint16_t y, char c, sFont* font, uint16_t color, uint16_t bg, uint8_t size) {
+    if (size == 0) size = 1;
+    if ((x >= ILI9341_WIDTH) || (y >= ILI9341_HEIGHT) ||
+        ((x + font->Width * size - 1) < 0) || ((y + font->Height * size - 1) < 0))
+        return;
+
+    if (c < ' ' || c > '~') c = ' ';
+
+    for (int8_t i = 0; i < font->Width; i++) {
+        uint8_t line = font->table[(c - ' ') * font->Width + i];
+        for (int8_t j = 0; j < font->Height; j++, line >>= 1) {
+            if (line & 0x01) {
+                if (size == 1)
+                    ILI9341_DrawPixel(x + i, y + j, color);
+                else
+                    // *** 调用慢速版 ***
+                    ILI9341_FillRectangle_Slow(x + i * size, y + j * size, size, size, color);
+            } else if (bg != color) {
+                if (size == 1)
+                    ILI9341_DrawPixel(x + i, y + j, bg);
+                else
+                    // *** 调用慢速版 ***
+                    ILI9341_FillRectangle_Slow(x + i * size, y + j * size, size, size, bg);
+            }
+        }
+    }
+}
+
+void ILI9341_DrawString(uint16_t x, uint16_t y, const char* str, sFont* font, uint16_t color, uint16_t bg, uint8_t size) {
+    while (*str) {
+    	uint16_t char_width = (font->Width + 1) * size;
+        if (x + char_width >= ILI9341_WIDTH) {
+            x = 0;
+            y += font->Height * size;
+            if (y + font->Height * size >= ILI9341_HEIGHT) break;
+        }
+        ILI9341_DrawChar(x, y, *str, font, color, bg, size);
+        x += char_width;
+        str++;
+    }
 }
 
 // --- SPI DMA传输完成回调函数 ---

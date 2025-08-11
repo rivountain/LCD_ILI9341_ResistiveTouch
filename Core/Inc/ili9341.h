@@ -10,6 +10,7 @@
 
 #include "stm32u5xx_hal.h"
 #include "main.h"
+#include "fonts.h"
 
 // --- 主要配置区 ---
 // 在这里配置您的SPI接口和引脚
@@ -57,6 +58,10 @@ void ILI9341_FillScreen(uint16_t color);
 void ILI9341_DrawPixel(uint16_t x, uint16_t y, uint16_t color);
 
 // 绘制一个填充矩形
-void ILI9341_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
+void ILI9341_FillRectangle_DMA(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
+
+// 字符和字符串绘制函数
+void ILI9341_DrawChar(uint16_t x, uint16_t y, char c, sFont* font, uint16_t color, uint16_t bgcolor, uint8_t size);
+void ILI9341_DrawString(uint16_t x, uint16_t y, const char* str, sFont* font, uint16_t color, uint16_t bgcolor, uint8_t size);
 
 #endif /* INC_ILI9341_H_ */

@@ -6,6 +6,8 @@ Play with Adafruit 2.8'' TFT LCD with Touchscreen Breakout Board
 ## TODO:
 - [x] ILI9341 Driver
   - [x] Update: DMA instead of Blocking CPU
+  - [x]	Add Font_5x7
+  - [x]	Can Adjust Font Size
   - [x] Test
 - [ ] LVGL
   - [ ] SquareLine Studio for UI Design

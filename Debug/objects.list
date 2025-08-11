@@ -1,3 +1,4 @@
+"./Core/Src/fonts.o"
 "./Core/Src/ili9341.o"
 "./Core/Src/main.o"
 "./Core/Src/stm32u5xx_hal_msp.o"

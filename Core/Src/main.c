@@ -106,8 +106,37 @@ int main(void)
   ILI9341_Init();
 
   ILI9341_FillScreen(ILI9341_BLACK);
-  ILI9341_FillRectangle(50, 50, 140, 30, ILI9341_RED);
-  ILI9341_FillRectangle(50, 150, 140, 30, ILI9341_GREEN);
+//  ILI9341_FillRectangle(50, 50, 140, 30, ILI9341_RED);
+//  ILI9341_FillRectangle(50, 150, 140, 30, ILI9341_GREEN);
+  // --- 文字显示测试 ---
+  ILI9341_DrawString(10, 10, "Hello World!", &Font_5x7, ILI9341_WHITE, ILI9341_BLACK, 1);
+    ILI9341_DrawString(10, 30, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", &Font_5x7, ILI9341_RED, ILI9341_BLACK, 2);
+    ILI9341_DrawString(10, 50, "abcdefghijklmnopqrstuvwxyz", &Font_5x7, ILI9341_GREEN, ILI9341_BLACK, 3);
+    ILI9341_DrawString(10, 70, "0123456789", &Font_5x7, ILI9341_BLUE, ILI9341_BLACK, 4);
+    char display_str[2] = {0}; // 创建一个长度为2的字符串，用于存放单个字符和结束符'\0'
+      uint16_t x_pos = 10;       // 初始X坐标
+      uint16_t y_pos = 150;       // 初始Y坐标
+      uint16_t text_color = ILI9341_WHITE;
+      uint16_t bg_color = ILI9341_BLACK;
+
+      // 4. 循环打印所有可见的ASCII字符 (从32号的空格 ' ' 到 126号的 '~')
+      for (char c = 32; c <= 126; c++) {
+          // 将当前字符放入字符串中
+          display_str[0] = c;
+
+          // 检查是否需要换行
+          // 加上字宽和一点边距，判断是否会超出屏幕右边界
+          if (x_pos + Font_5x7.Width > ILI9341_WIDTH - 10) {
+              x_pos = 10; // X坐标回到最左边
+              y_pos += Font_5x7.Height + 4; // Y坐标下移一行 (字体高度 + 4像素行间距)
+          }
+
+          // 在屏幕上绘制当前字符
+          ILI9341_DrawString(x_pos, y_pos, display_str, &Font_5x7, text_color, bg_color, 1);
+
+          // 更新下一个字符的X坐标
+          x_pos += Font_5x7.Width + 4; // X坐标右移 (字体宽度 + 4像素字间距)
+      }
 
   /* USER CODE END 2 */
 

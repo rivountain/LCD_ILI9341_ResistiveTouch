@@ -61,8 +61,8 @@ all: main-build
 main-build: LCD_ILI9341_ResistiveTouch.elf secondary-outputs
 
 # Tool invocations
-LCD_ILI9341_ResistiveTouch.elf LCD_ILI9341_ResistiveTouch.map: $(OBJS) $(USER_OBJS) D:\stm32code\ILI9341_Demo\STM32U575ZITXQ_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "LCD_ILI9341_ResistiveTouch.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m33 -T"D:\stm32code\ILI9341_Demo\STM32U575ZITXQ_FLASH.ld" --specs=nosys.specs -Wl,-Map="LCD_ILI9341_ResistiveTouch.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+LCD_ILI9341_ResistiveTouch.elf LCD_ILI9341_ResistiveTouch.map: $(OBJS) $(USER_OBJS) D:\github_repo\LCD_ILI9341_ResistiveTouch\STM32U575ZITXQ_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "LCD_ILI9341_ResistiveTouch.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m33 -T"D:\github_repo\LCD_ILI9341_ResistiveTouch\STM32U575ZITXQ_FLASH.ld" --specs=nosys.specs -Wl,-Map="LCD_ILI9341_ResistiveTouch.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
