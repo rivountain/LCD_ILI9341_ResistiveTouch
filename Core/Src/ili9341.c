@@ -126,8 +126,10 @@ void ILI9341_Init(void) {
     ILI9341_WriteCommand(0xC7); // VCM control 2
     ILI9341_WriteData(0x86);
 
-    ILI9341_WriteCommand(0x36); // Memory Access Control
-    ILI9341_WriteData(0x48);
+    ILI9341_WriteCommand(0x36); // Memory Access Control (MADCTL): MX, MY, RGB order
+//    ILI9341_WriteData(0x48);
+    ILI9341_WriteData(0x28); 	// landscape
+//    ILI9341_WriteData(0x28);	// landscape flipped
 
     ILI9341_WriteCommand(0x3A); // Pixel Format Set
     ILI9341_WriteData(0x55);    // 16 bits per pixel

@@ -33,8 +33,11 @@ extern SPI_HandleTypeDef hspi1;
 #define ILI9341_RST_PIN     TFT_RST_Pin
 
 // --- 显示屏基本属性 ---
-#define ILI9341_WIDTH       240
-#define ILI9341_HEIGHT      320
+//#define ILI9341_WIDTH       240
+//#define ILI9341_HEIGHT      320
+// landscape
+#define ILI9341_WIDTH       320
+#define ILI9341_HEIGHT      240
 
 // --- 常用颜色定义 (16-bit, RGB565) ---
 #define ILI9341_BLACK       0x0000
