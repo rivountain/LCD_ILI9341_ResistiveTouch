@@ -9,7 +9,7 @@ Play with Adafruit 2.8'' TFT LCD with Touchscreen Breakout Board
   - [x]	Add Font_5x7
   - [x]	Can Adjust Font Size
   - [x] Test
-- [ ] LVGL
+- [x] LVGL
   - [ ] SquareLine Studio for UI Design
   - [ ] Test
 - [ ] Touch Driver
