@@ -5,10 +5,6 @@
 #include "main.h"
 #include "lvgl.h"
 
-// SPI接口句柄，CubeMX中会自动生成 hspi1
-extern SPI_HandleTypeDef hspi1;
-#define ILI9341_SPI_HANDLE  &hspi1
-
 // CS (Chip Select)
 #define ILI9341_CS_PORT     TFT_CS_GPIO_Port
 #define ILI9341_CS_PIN      TFT_CS_Pin
@@ -21,8 +17,6 @@ extern SPI_HandleTypeDef hspi1;
 #define ILI9341_RST_PORT    TFT_RST_GPIO_Port
 #define ILI9341_RST_PIN     TFT_RST_Pin
 
-//#define ILI9341_WIDTH       240
-//#define ILI9341_HEIGHT      320
 // landscape
 #define ILI9341_WIDTH       320
 #define ILI9341_HEIGHT      240

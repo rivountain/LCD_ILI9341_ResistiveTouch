@@ -23,7 +23,10 @@
 /* USER CODE BEGIN Includes */
 #include "lvgl.h"
 #include "lvglController.h"
+#include "touchController.h"
+#include "touch_calibration.h"
 //#include "demos/benchmark/lv_demo_benchmark.h"
+#include "demos/widgets/lv_demo_widgets.h"
 
 /* USER CODE END Includes */
 
@@ -45,12 +48,13 @@
 /* Private variables ---------------------------------------------------------*/
 
 COM_InitTypeDef BspCOMInit;
+ADC_HandleTypeDef hadc1;
 
 SPI_HandleTypeDef hspi1;
 DMA_HandleTypeDef handle_GPDMA1_Channel0;
 
 /* USER CODE BEGIN PV */
-
+static lv_obj_t * kb; // 用于存放键盘对象的全局指针
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -60,13 +64,52 @@ static void MX_GPIO_Init(void);
 static void MX_GPDMA1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_ICACHE_Init(void);
+static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+static void textarea_event_handler(lv_event_t * e)
+{
+    // 获取触发事件的控件 (也就是我们的文本区域)
+    lv_obj_t * ta = lv_event_get_target(e);
+    // 获取事件代码
+    lv_event_code_t code = lv_event_get_code(e);
 
+    if(code == LV_EVENT_FOCUSED) {
+        // --- 当文本区域被点击（获得焦点）时 ---
+
+        // 1. 创建一个键盘对象 (如果它还不存在)
+        if(kb == NULL) {
+            kb = lv_keyboard_create(lv_scr_act());
+            // 2. 将键盘设置为数字模式
+			lv_keyboard_set_mode(kb, LV_KEYBOARD_MODE_NUMBER);
+        }
+
+        // 3. 将键盘与当前的文本区域关联起来
+        lv_keyboard_set_textarea(kb, ta);
+        lv_obj_clear_flag(kb, LV_OBJ_FLAG_HIDDEN);
+    }
+    else if(code == LV_EVENT_DEFOCUSED) {
+        // --- 当点击文本区域以外的地方（失去焦点）时 ---
+    	if (kb != NULL) {
+			// 4. 只是隐藏键盘，而不是删除它
+			lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
+		}
+    }
+    else if (code == LV_EVENT_READY || code == LV_EVENT_CANCEL) {
+        // --- 当在键盘上按下 "Ready" (✓) 或 "Cancel" (X) 按钮时 ---
+
+		// 9. 让文本区域失去焦点
+		lv_obj_clear_state(ta, LV_STATE_FOCUSED);
+		if (kb != NULL) {
+			// 4. 只是隐藏键盘，而不是删除它
+			lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
+		}
+    }
+}
 /* USER CODE END 0 */
 
 /**
@@ -104,21 +147,39 @@ int main(void)
   MX_GPDMA1_Init();
   MX_SPI1_Init();
   MX_ICACHE_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
   lv_init();
   lv_port_disp_init();
+  lv_port_indev_init();
 
+//  Touch_Calibrate();
+//  lv_demo_widgets();
 //  lv_demo_benchmark();
-  // Change the active screen's background color
-  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x003a57), LV_PART_MAIN);
-  lv_obj_set_style_text_color(lv_scr_act(), lv_color_hex(0xffffff), LV_PART_MAIN);
+//  // Change the active screen's background color
+//  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x003a57), LV_PART_MAIN);
+//  lv_obj_set_style_text_color(lv_scr_act(), lv_color_hex(0xffffff), LV_PART_MAIN);
+//
+//  /*Create a spinner*/
+//  lv_obj_t * spinner = lv_spinner_create(lv_scr_act(), 1000, 60);
+//  lv_obj_set_size(spinner, 64, 64);
+//  lv_obj_align(spinner, LV_ALIGN_BOTTOM_MID, 0, 0);
+  // 1. 创建一个文本区域 (Text Area) 对象
+    lv_obj_t * ta = lv_textarea_create(lv_scr_act());
 
-  /*Create a spinner*/
-  lv_obj_t * spinner = lv_spinner_create(lv_scr_act(), 1000, 60);
-  lv_obj_set_size(spinner, 64, 64);
-  lv_obj_align(spinner, LV_ALIGN_BOTTOM_MID, 0, 0);
+    // 2. 设置为单行模式
+    lv_textarea_set_one_line(ta, true);
 
+    // 3. 设置输入框的位置和大小
+    lv_obj_align(ta, LV_ALIGN_TOP_MID, 0, 30);
+    lv_obj_set_width(ta, 200);
 
+    // 4. 设置占位符提示文字
+    lv_textarea_set_placeholder_text(ta, "Enter numbers...");
+
+    // 5. **关键**：为文本区域添加我们的事件处理回调函数
+    lv_obj_add_event_cb(ta, textarea_event_handler, LV_EVENT_ALL, NULL);
+    uint32_t last_tick = 0;
   /* USER CODE END 2 */
 
   /* Initialize leds */
@@ -145,7 +206,8 @@ int main(void)
   while (1)
   {
 	lv_timer_handler();
-	HAL_Delay(5);
+//	HAL_Delay(5);
+	__WFI();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -171,7 +233,9 @@ void SystemClock_Config(void)
 
   /** Initializes the CPU, AHB and APB buses clocks
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_MSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.MSIState = RCC_MSI_ON;
   RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_0;
@@ -231,6 +295,50 @@ static void SystemPower_Config(void)
 }
 
 /**
+  * @brief ADC1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_ADC1_Init(void)
+{
+
+  /* USER CODE BEGIN ADC1_Init 0 */
+
+  /* USER CODE END ADC1_Init 0 */
+
+  /* USER CODE BEGIN ADC1_Init 1 */
+
+  /* USER CODE END ADC1_Init 1 */
+
+  /** Common config
+  */
+  hadc1.Instance = ADC1;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+  hadc1.Init.GainCompensation = 0;
+  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc1.Init.LowPowerAutoWait = DISABLE;
+  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.NbrOfConversion = 1;
+  hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.DMAContinuousRequests = DISABLE;
+  hadc1.Init.TriggerFrequencyMode = ADC_TRIGGER_FREQ_HIGH;
+  hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
+  hadc1.Init.LeftBitShift = ADC_LEFTBITSHIFT_NONE;
+  hadc1.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DR;
+  hadc1.Init.OversamplingMode = DISABLE;
+  if (HAL_ADC_Init(&hadc1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN ADC1_Init 2 */
+
+  /* USER CODE END ADC1_Init 2 */
+
+}
+
+/**
   * @brief GPDMA1 Initialization Function
   * @param None
   * @retval None
@@ -246,7 +354,7 @@ static void MX_GPDMA1_Init(void)
   __HAL_RCC_GPDMA1_CLK_ENABLE();
 
   /* GPDMA1 interrupt Init */
-    HAL_NVIC_SetPriority(GPDMA1_Channel0_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(GPDMA1_Channel0_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(GPDMA1_Channel0_IRQn);
 
   /* USER CODE BEGIN GPDMA1_Init 1 */
@@ -362,9 +470,9 @@ static void MX_GPIO_Init(void)
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(TFT_RST_GPIO_Port, TFT_RST_Pin, GPIO_PIN_RESET);

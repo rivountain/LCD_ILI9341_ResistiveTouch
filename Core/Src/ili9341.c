@@ -1,8 +1,10 @@
 #include "ili9341.h"
 
+extern SPI_HandleTypeDef hspi1;
+
 // Send Single Byte
 static void ILI9341_SPI_Tx(uint8_t data) {
-    HAL_SPI_Transmit(ILI9341_SPI_HANDLE, &data, 1, HAL_MAX_DELAY);
+    HAL_SPI_Transmit(&hspi1, &data, 1, HAL_MAX_DELAY);
 }
 
 // Write Command
@@ -55,82 +57,18 @@ void ILI9341_Init(void) {
 	    ILI9341_WriteCommand(0x01); // Software Reset
 	    HAL_Delay(120);
 
-	    ILI9341_WriteCommand(0xEF);
-	    ILI9341_WriteData(0x03);
-	    ILI9341_WriteData(0x80);
-	    ILI9341_WriteData(0x02);
-
-	    ILI9341_WriteCommand(0xCF);
-	    ILI9341_WriteData(0x00);
-	    ILI9341_WriteData(0xC1);
-	    ILI9341_WriteData(0x30);
-
-	    ILI9341_WriteCommand(0xED);
-	    ILI9341_WriteData(0x64);
-	    ILI9341_WriteData(0x03);
-	    ILI9341_WriteData(0x12);
-	    ILI9341_WriteData(0x81);
-
-	    ILI9341_WriteCommand(0xE8);
-	    ILI9341_WriteData(0x85);
-	    ILI9341_WriteData(0x00);
-	    ILI9341_WriteData(0x78);
-
-	    ILI9341_WriteCommand(0xCB);
-	    ILI9341_WriteData(0x39);
-	    ILI9341_WriteData(0x2C);
-	    ILI9341_WriteData(0x00);
-	    ILI9341_WriteData(0x34);
-	    ILI9341_WriteData(0x02);
-
-	    ILI9341_WriteCommand(0xF7);
-	    ILI9341_WriteData(0x20);
-
-	    ILI9341_WriteCommand(0xEA);
-	    ILI9341_WriteData(0x00);
-	    ILI9341_WriteData(0x00);
-
-	    ILI9341_WriteCommand(0xC0);    //Power control
-	    ILI9341_WriteData(0x23);   //VRH[5:0]
-
-	    ILI9341_WriteCommand(0xC1);    //Power control
-	    ILI9341_WriteData(0x10);   //SAP[2:0];BT[3:0]
-
-	    ILI9341_WriteCommand(0xC5);    //VCM control
-	    ILI9341_WriteData(0x3e);
-	    ILI9341_WriteData(0x28);
-
-	    ILI9341_WriteCommand(0xC7);    //VCM control2
-	    ILI9341_WriteData(0x86);
-
-	    ILI9341_WriteCommand(0x36);    // Memory Access Control
-	    ILI9341_WriteData(0x28);
-
-	    ILI9341_WriteCommand(0x3A);    // Pixel Format Set
-	    ILI9341_WriteData(0x55);
-
-	    ILI9341_WriteCommand(0xB1);    // Frame Rate Control
-	    ILI9341_WriteData(0x00);
-	    ILI9341_WriteData(0x18);
-
-	    ILI9341_WriteCommand(0xB6);    // Display Function Control
-	    ILI9341_WriteData(0x08);
-	    ILI9341_WriteData(0x82);
-	    ILI9341_WriteData(0x27);
-
-	    ILI9341_WriteCommand(0xF2);    // 3Gamma Function Disable
-	    ILI9341_WriteData(0x00);
-
-	    ILI9341_WriteCommand(0x26);    //Gamma curve selected
-	    ILI9341_WriteData(0x01);
-
-	    // *** 新增的、关键的修复代码 ***
-	    ILI9341_WriteCommand(0x20); // Display Inversion OFF
-
 	    ILI9341_WriteCommand(0x11); // Exit Sleep
 	    HAL_Delay(120);
 
-	    ILI9341_WriteCommand(0x29); // Display ON
+	    ILI9341_WriteCommand(0x3A);    // Pixel Format Set
+	    ILI9341_WriteData(0x55);       // 16-bit pixel format
+
+	    ILI9341_WriteCommand(0x36);    // Memory Access Control
+	    ILI9341_WriteData(0x28);	// landscape, BGR
+
+	    ILI9341_WriteCommand(0x20);    // Display Inversion OFF
+
+	    ILI9341_WriteCommand(0x29);    // Display ON
 }
 
 // 用于在中断回调中通知LVGL的显示驱动指针

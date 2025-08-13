@@ -1,0 +1,4 @@
+D:/github_repo/LCD_ILI9341_ResistiveTouch/Drivers/lvgl/src/../src/hal/../draw/../misc/lv_color.h:599:26:lv_color_hex	1
+D:/github_repo/LCD_ILI9341_ResistiveTouch/Drivers/lvgl/src/../src/core/lv_disp.h:182:26:lv_scr_act	1
+../Core/Src/touch_calibration.c:32:13:calibration_timer_cb	20
+../Core/Src/touch_calibration.c:184:6:Touch_Calibrate	1

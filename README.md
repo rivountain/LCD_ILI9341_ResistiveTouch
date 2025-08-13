@@ -10,10 +10,13 @@ Play with Adafruit 2.8'' TFT LCD with Touchscreen Breakout Board
   - [x]	Can Adjust Font Size
   - [x] Test
 - [x] LVGL
+  - [x] LVGL Porting Controller
   - [ ] SquareLine Studio for UI Design
   - [ ] Test
-- [ ] Touch Driver
-  - [ ] Test
+- [x] Touch Driver
+  - [x] LVGL Touch Controller
+  - [x] Calibration
+  - [x] Test
 
 ## Port Configuration
 | TFT LCD | NUCLEO-U575ZI-Q | Note |
@@ -26,10 +29,10 @@ Play with Adafruit 2.8'' TFT LCD with Touchscreen Breakout Board
 | D/C | PD_15 | GPIO_Output |
 | RST | PF_12 | GPIO_Output |
 | Lite | 3V3 | - |
-| Y+ | PC2 | ADC_1_IN3 |
-| X+ | PC1 | ADC_1_IN2 |
-| Y- | PA2 | ADC_1_IN7 |
-| X- | PA3 | ADC_1_IN8 |
+| Y+ | PA3 | ADC_1_IN8 |
+| X+ | PA2 | ADC_1_IN7 |
+| Y- | PC3 | ADC_1_IN4 |
+| X- | PB0 | ADC_1_IN15 |
 
 ## GPDMA_1
 - DMA Request:                     SPI1_TX

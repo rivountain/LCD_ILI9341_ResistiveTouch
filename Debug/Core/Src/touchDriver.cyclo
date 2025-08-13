@@ -1,0 +1,6 @@
+../Core/Src/touchDriver.c:6:13:Set_Pin_Output	1
+../Core/Src/touchDriver.c:15:13:Set_Pin_Analog	1
+../Core/Src/touchDriver.c:23:17:Read_ADC_Channel	3
+../Core/Src/touchDriver.c:40:6:Touch_Init	1
+../Core/Src/touchDriver.c:44:6:Touch_GetRaw_ADC	3
+../Core/Src/touchDriver.c:72:6:Touch_GetCoordinates	8

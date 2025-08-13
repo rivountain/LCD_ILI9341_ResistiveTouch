@@ -184,7 +184,9 @@
 #if LV_USE_GPU_STM32_DMA2D
     /*Must be defined to include path of CMSIS header of target processor
     e.g. "stm32f7xx.h" or "stm32f4xx.h"*/
-    #define LV_GPU_DMA2D_CMSIS_INCLUDE
+    #define LV_GPU_DMA2D_CMSIS_INCLUDE "stm32u5xx.h"
+	// 0: RGB, 1: BGR
+    #define LV_GPU_DMA2D_RGB565_ORDER 1
 #endif
 
 /*Enable RA6M3 G2D GPU*/
@@ -279,7 +281,7 @@
  *-----------*/
 
 /*1: Show CPU usage and FPS count*/
-#define LV_USE_PERF_MONITOR 0
+#define LV_USE_PERF_MONITOR 1
 #if LV_USE_PERF_MONITOR
     #define LV_USE_PERF_MONITOR_POS LV_ALIGN_BOTTOM_RIGHT
 #endif
@@ -749,7 +751,7 @@
  ====================*/
 
 /*Show some widget. It might be required to increase `LV_MEM_SIZE` */
-#define LV_USE_DEMO_WIDGETS 0
+#define LV_USE_DEMO_WIDGETS 1
 #if LV_USE_DEMO_WIDGETS
 #define LV_DEMO_WIDGETS_SLIDESHOW 0
 #endif

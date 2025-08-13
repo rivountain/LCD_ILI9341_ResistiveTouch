@@ -1,10 +1,11 @@
 #include "lvglController.h"
 #include "ili9341.h"
+//#include "src/draw/stm32_dma2d/lv_gpu_stm32_dma2d.h"
 
 // --- LVGL 显示缓冲区 ---
 // LVGL需要一小块RAM来渲染图像，然后再发送到屏幕
 // 缓冲区大小可以根据您的RAM余量调整，通常是屏幕宽度的10-20倍
-#define LV_DISP_BUF_SIZE (ILI9341_WIDTH * 20)
+#define LV_DISP_BUF_SIZE (ILI9341_WIDTH * ILI9341_HEIGHT / 10)
 
 static lv_disp_draw_buf_t disp_buf;
 static lv_color_t buf_1[LV_DISP_BUF_SIZE];
@@ -20,6 +21,12 @@ void lv_port_disp_init(void)
     // 3. 初始化LVGL的显示驱动
     static lv_disp_drv_t disp_drv;
     lv_disp_drv_init(&disp_drv);
+
+//    // 初始化和关联DMA2D
+//    // 告诉LVGL，当需要混合/填充操作时，调用DMA2D的函数
+//	disp_drv.draw_ctx_init = lv_draw_stm32_dma2d_ctx_init;
+//	disp_drv.draw_ctx_deinit = lv_draw_stm32_dma2d_ctx_deinit;
+//	disp_drv.draw_ctx_size = sizeof(lv_draw_stm32_dma2d_ctx_t);
 
     // 4. 关联我们的刷新回调函数
     disp_drv.flush_cb = ILI9341_Flush_Callback;

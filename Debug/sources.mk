@@ -26,6 +26,14 @@ Core/Src \
 Core/Startup \
 Drivers/BSP/STM32U5xx_Nucleo \
 Drivers/STM32U5xx_HAL_Driver/Src \
+Drivers/lvgl/demos/benchmark/assets \
+Drivers/lvgl/demos/benchmark \
+Drivers/lvgl/demos/keypad_encoder \
+Drivers/lvgl/demos/music/assets \
+Drivers/lvgl/demos/music \
+Drivers/lvgl/demos/stress \
+Drivers/lvgl/demos/widgets/assets \
+Drivers/lvgl/demos/widgets \
 Drivers/lvgl/src/core \
 Drivers/lvgl/src/draw/arm2d \
 Drivers/lvgl/src/draw \

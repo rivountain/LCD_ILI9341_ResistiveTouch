@@ -1,0 +1,2 @@
+../Core/Src/touchController.c:6:13:touchpad_read	2
+../Core/Src/touchController.c:19:6:lv_port_indev_init	1

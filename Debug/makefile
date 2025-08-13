@@ -63,6 +63,14 @@ RM := rm -rf
 -include Drivers/lvgl/src/draw/arm2d/subdir.mk
 -include Drivers/lvgl/src/draw/subdir.mk
 -include Drivers/lvgl/src/core/subdir.mk
+-include Drivers/lvgl/demos/widgets/assets/subdir.mk
+-include Drivers/lvgl/demos/widgets/subdir.mk
+-include Drivers/lvgl/demos/stress/subdir.mk
+-include Drivers/lvgl/demos/music/assets/subdir.mk
+-include Drivers/lvgl/demos/music/subdir.mk
+-include Drivers/lvgl/demos/keypad_encoder/subdir.mk
+-include Drivers/lvgl/demos/benchmark/assets/subdir.mk
+-include Drivers/lvgl/demos/benchmark/subdir.mk
 -include Drivers/STM32U5xx_HAL_Driver/Src/subdir.mk
 -include Drivers/BSP/STM32U5xx_Nucleo/subdir.mk
 -include Core/Startup/subdir.mk
