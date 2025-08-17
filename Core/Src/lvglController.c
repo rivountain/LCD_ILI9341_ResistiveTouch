@@ -5,10 +5,10 @@
 // --- LVGL 显示缓冲区 ---
 // LVGL需要一小块RAM来渲染图像，然后再发送到屏幕
 // 缓冲区大小可以根据您的RAM余量调整，通常是屏幕宽度的10-20倍
-#define LV_DISP_BUF_SIZE (ILI9341_WIDTH * ILI9341_HEIGHT / 10)
+#define LV_DISP_BUF_SIZE (ILI9341_WIDTH * 20)
 
 static lv_disp_draw_buf_t disp_buf;
-static lv_color_t buf_1[LV_DISP_BUF_SIZE];
+static lv_color_t buf_1[LV_DISP_BUF_SIZE], buf_2[LV_DISP_BUF_SIZE];
 
 void lv_port_disp_init(void)
 {
@@ -16,7 +16,7 @@ void lv_port_disp_init(void)
     ILI9341_Init();
 
     // 2. 初始化LVGL的显示缓冲区
-    lv_disp_draw_buf_init(&disp_buf, buf_1, NULL, LV_DISP_BUF_SIZE);
+    lv_disp_draw_buf_init(&disp_buf, buf_1, buf_2, LV_DISP_BUF_SIZE);
 
     // 3. 初始化LVGL的显示驱动
     static lv_disp_drv_t disp_drv;

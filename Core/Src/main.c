@@ -53,6 +53,8 @@ ADC_HandleTypeDef hadc1;
 SPI_HandleTypeDef hspi1;
 DMA_HandleTypeDef handle_GPDMA1_Channel0;
 
+TIM_HandleTypeDef htim16;
+
 /* USER CODE BEGIN PV */
 static lv_obj_t * kb; // 用于存放键盘对象的全局指针
 /* USER CODE END PV */
@@ -65,6 +67,7 @@ static void MX_GPDMA1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_ICACHE_Init(void);
 static void MX_ADC1_Init(void);
+static void MX_TIM16_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -148,11 +151,12 @@ int main(void)
   MX_SPI1_Init();
   MX_ICACHE_Init();
   MX_ADC1_Init();
+  MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
   lv_init();
   lv_port_disp_init();
   lv_port_indev_init();
-
+  HAL_TIM_Base_Start_IT(&htim16);
 //  Touch_Calibrate();
 //  lv_demo_widgets();
 //  lv_demo_benchmark();
@@ -179,7 +183,6 @@ int main(void)
 
     // 5. **关键**：为文本区域添加我们的事件处理回调函数
     lv_obj_add_event_cb(ta, textarea_event_handler, LV_EVENT_ALL, NULL);
-    uint32_t last_tick = 0;
   /* USER CODE END 2 */
 
   /* Initialize leds */
@@ -456,6 +459,38 @@ static void MX_SPI1_Init(void)
 }
 
 /**
+  * @brief TIM16 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM16_Init(void)
+{
+
+  /* USER CODE BEGIN TIM16_Init 0 */
+
+  /* USER CODE END TIM16_Init 0 */
+
+  /* USER CODE BEGIN TIM16_Init 1 */
+
+  /* USER CODE END TIM16_Init 1 */
+  htim16.Instance = TIM16;
+  htim16.Init.Prescaler = 3999;
+  htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim16.Init.Period = 99;
+  htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim16.Init.RepetitionCounter = 0;
+  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim16) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM16_Init 2 */
+
+  /* USER CODE END TIM16_Init 2 */
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -471,28 +506,26 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOF_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(TFT_RST_GPIO_Port, TFT_RST_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, TFT_RST_Pin|TFT_CS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, TFT_CS_Pin|TFT_DC_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(TFT_DC_GPIO_Port, TFT_DC_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : TFT_RST_Pin */
-  GPIO_InitStruct.Pin = TFT_RST_Pin;
+  /*Configure GPIO pins : TFT_RST_Pin TFT_CS_Pin */
+  GPIO_InitStruct.Pin = TFT_RST_Pin|TFT_CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(TFT_RST_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : TFT_CS_Pin TFT_DC_Pin */
-  GPIO_InitStruct.Pin = TFT_CS_Pin|TFT_DC_Pin;
+  /*Configure GPIO pin : TFT_DC_Pin */
+  GPIO_InitStruct.Pin = TFT_DC_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+  HAL_GPIO_Init(TFT_DC_GPIO_Port, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
@@ -514,10 +547,7 @@ static void MX_GPIO_Init(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
-	if (htim->Instance == TIM17)
-	{
-		lv_tick_inc(1);
-	}
+
   /* USER CODE END Callback 0 */
   if (htim->Instance == TIM17)
   {

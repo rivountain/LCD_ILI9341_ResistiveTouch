@@ -63,7 +63,7 @@ bool Touch_GetRaw_ADC(uint16_t* adc_x, uint16_t* adc_y)
 	HAL_Delay(1);
 	*adc_y = Read_ADC_Channel(ADC_CHANNEL_8);
 
-	if (*adc_x < 500 || *adc_y < 500) {
+	if (*adc_x < 50 || *adc_y < 50) {
 		return false;
 	}
 	return true;
